@@ -1,8 +1,8 @@
 # JavaStudy-ys
 记录个人从大学开始学习java的经历； 
-学习永无止境。
+学习永无止境。   
 
-## 行到水穷处，坐看云起时。  自勉
+行到水穷处，坐看云起时。  自勉
 ## 1.java 基础
 ## 2.项目原型开发（项目前端开发技术）html/css/javascript/jquery/bootstrap/layui
 ## 3.项目数据库设计（mysql/oracle/sql/pd）
