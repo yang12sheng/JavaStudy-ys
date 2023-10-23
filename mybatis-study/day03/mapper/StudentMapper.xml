@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ychs.mapper.StudentMapper">
+
+   <resultMap id="queryResult" type="student" autoMapping="true">
+<!--       <id property="sno" column="sno"></id>-->
+<!--       <result property="sname" column="sname"></result>-->
+<!--       <result property="phone" column="phone"></result>-->
+<!--       <result property="cid" column="cid"></result>-->
+       <!--association  表示 对   一对一关系的时候进行封装
+       property 表示  要封装到 student  该类型的哪个属性上
+       -->
+       <association property="clazz"  javaType="com.ychs.bean.Clazz" autoMapping="true">
+<!--           <id column="id" property="id"></id>-->
+<!--           <result property="cno" column="cno"></result>-->
+<!--           <result property="cname" column="cname"></result>-->
+       </association>
+   </resultMap>
+    <select id="getStudents"  resultMap="queryResult">
+        select * from t_student s left join t_class c on s.cid=c.id
+
+
+
+    </select>
+    <resultMap id="rm" type="student" autoMapping="true">
+
+        <association property="cat" autoMapping="true"
+                    select="com.ychs.mapper.CatMapper.getCatById" column="CatId"></association>
+    </resultMap>
+
+    <select id="getStudentsByCid" parameterType="int" resultMap="rm">
+        select * from t_student where cid=#{id}
+
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <select id="getStudents2" parameterType="map" resultType="student">
+        select * from t_student s left join t_class c on s.cid=c.id where 1=1
+        <if test="sname!=null and sname!=''">
+            and s.sname like '%${sname}%'
+        </if>
+        <if test="cname!=null and cname!=''">
+            and c.cname like concat('%',#{cname},'%')
+        </if>
+    </select>
+
+    <update id="editStu" parameterType="student">
+        <!--update t_student set sname=#{sname},phone=#{phone} where sno=#{sno}
+            set 标签能把最后一个 , 去除掉
+        -->
+        update t_student
+        <!--<set>-->
+        <trim prefix="set" suffixOverrides=",">
+            <if test="sname!=null and sname!=''">
+                sname=#{sname},
+            </if>
+            <if test="phone!=null and phone!=''">
+                phone=#{phone},
+            </if>
+            <if test="cid!=null and cid!=''">
+                cid=#{cid},
+            </if>
+        </trim>
+        <!--</set>-->
+        where sno=#{sno}
+    </update>
+
+
+    <select id="batchQuery" resultType="student">
+<!--         delete    from t_student where sno in('1001','1002');
+            collection 表示要循环的东西
+                     如果传入的参数是数组  collection值 只能是array
+                     如果传入的参数是List  collection值 只能是list
+                     如果传入的参数是map  collection值 是 map的 key
+            item 表示取出来的每个值赋值给 该变量
+            open  表示拼接的sql    语句  以 什么开始
+           close  表示拼接的sql    语句  以 什么结束
+           separate    表示拼接的sql    语句  以 什么作分隔
+-->
+
+            select * from t_student where sno in
+            <!--<foreach collection="array" item="sno"  open="(" close=")" separator="，">-->
+        <!--<foreach collection="list" item="sno"  open="(" close=")" separator="，">-->
+        <foreach collection="m" item="a"  open="(" close=")" separator="，">
+       #{a}
+       </foreach>
+</select>
+
+</mapper>

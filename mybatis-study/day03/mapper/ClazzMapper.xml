@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ychs.mapper.ClazzMapper">
+    <cache/>
+    <!--为什么写id
+    id相同 会合并         result 全部相同才合并
+    -->
+    <resultMap id="queryResult" type="clazz">
+        <id column="id" property="id"></id>
+         <result property="cno" column="cno"></result>
+          <result property="cname" column="cname"></result>
+        <!--一对多封装用collection-->
+        <collection property="students" ofType="student">
+            <id property="sno" column="sno"></id>
+            <result property="sname" column="sname"></result>
+            <result property="phone" column="phone"></result>
+             <result property="cid" column="cid"></result>
+            <association property="cat" javaType="cat">
+                <id column="id" property="id"></id>
+                <result property="name" column="name"></result>
+                <result property="type" column="type"></result>
+            </association>
+        </collection>
+    </resultMap>
+
+
+    <select id="getClazzes"  resultMap="queryResult">
+        select c.*,s.*,cat.*,cat.id catId from t_class c left join t_student s on c.id=s.cid
+        left join t_cat cat on s.catId=cat.id
+
+
+
+    </select>
+    <!--开启该mapper 的二级缓冲 -->
+    <resultMap id="rm" type="clazz" autoMapping="true">
+        <!--collection        查询出是一个 list 的时候用
+        对象的话用 association
+        property： 要封装到哪个属性头上  oftype 查询到的是什么类型
+        select： 要进行关联查询的 sql语句 namespace+id
+        column： 传入上面 select 的sql 语句中的参数   该值可以传递 多个参数， 如果是多个参数的时候，形式：{cid=id，name=name}
+        -->
+        <collection property="students" ofType="student"
+                    select="com.ychs.mapper.StudentMapper.getStudentsByCid" column="id"></collection>
+    </resultMap>
+    <select id="getClazz"  resultMap="rm">
+        select * from t_class
+
+    </select>
+
+
+    <!--测试  mybatis 一级缓冲 -->
+    <select id="getClazzById" parameterType="int"  resultType="clazz">
+        select * from t_class where id=#{id}
+
+    </select>
+
+
+
+
+
+
+
+
+</mapper>
