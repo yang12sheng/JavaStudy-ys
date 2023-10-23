@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace:类似于包的作用，命名空间，隔离开不同的sql 语句
+    如果用代理的开发方式
+    值：是接口所在的位置
+
+    1.接口的文件和xml文件的名称一致
+   命名空间
+   参数类型和方法中参数类型一致
+   返回值类型和方法中返回值类型同意
+   聚合函数 （组函数 簇函数 ） 有什么？  5  count avg sum max min
+   count * count 列名
+   #cid  占位符
+   ${} 拼接符   sql 字段名或列名 拼接的时候
+-->
+<mapper namespace="com.ychs.mapper.StudentMapper">
+    <!--resultType :返回值类型
+        注意：如果返回的是list，这儿resultType 里面写的是list 存放的什么类型
+        参数类型，返回类型  用的是 全限定名  包名+类型  原因，我必须指定那个包里面的那个类的对象
+    -->
+    <select id="getcountByCid"  parameterType="int" resultType="com.ychs.bean.User">
+        select * from t_user
+    </select>
+    <!--parameterType:参数类型
+        #{}：表示的是占位符
+        ${}：表示的是拼接符
+        id，在当前namespace 里面不能重复，不能写方法的重载
+    -->
+    <select id="getUserById" parameterType="int" resultType="user">
+        select * from t_user where cid=#{cid}
+
+    </select>
+<!--输入对象 输出的是列表-->
+    <select id="getStudents" parameterType="student" resultType="student">
+        select * from t_student where sname like concat('%',#{sname},'%')
+
+    </select>
+
+    <!--输入包装类型 输出的是列表
+    多表连接  内连接 外连接 （ 左外连接 右外连接 完全外连接）
+    连接条件
+    -->
+    <select id="getStusByNameAndCname" parameterType="student" resultType="student">
+        select * from t_student s  left join t_class c on s.cid=c.id
+         where s.sname like concat('%',#{sname},'%') and c.cname like concat ('%',#{clazz.cname},'%')
+
+    </select>
+
+
+    <!--根据学生id   查询学生的信息，  参数  hashMap   返回类型是 hashmap
+          -->
+    <select id="getStuBySno" parameterType="map" resultType="hashmap">
+        select * from t_student
+         where sno= #{sno}
+
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+    <!--添加:xml 中 对于增删改来说没有 resultType，但是有返回值，返回值是影响的行数-->
+    <!--<insert id="addUser" parameterType="user">
+        insert into t_user(username,password,realname)
+        values(#{username},#{password},#{realname})
+    </insert>-->
+    <delete id="deleteUserById" parameterType="int">
+        delete from t_user where id=#{id}
+    </delete>
+    <update id="editUser" parameterType="user">
+        update t_user set username=#{username},password=#{password},realname=#{realname}
+        where id=#{id}
+    </update>
+    <!--查询用户名 含有 a 的所有用户信息，并且按 指定字段倒序输出
+        1、参数的位置，hashmap
+        2、#{}  ${} 区别
+        先 给参数  在编译  ${}
+        先 编译  在给参数  #{}   尽量使用#{}，如果遇上表名，字段名 或者传入的参数是sql语法中
+        的一部分的时候，必须使用 ${}
+    -->
+    <select id="getUsersByCondition" parameterType="hashMap" resultType="user">
+        select * from ${tab} where username like concat('%',#{aaa},'%')
+        order by ${id} ${px}
+        limit ${(page-1)*pageSize},#{pageSize}
+    </select>
+    <!--当我往数据库添加一条记录后，我要拿到添加后的主键
+        mysql 里面使用
+        useGeneratedKeys:是否使用生成的主键
+        keyProperty：把生成的主键的值放到 该属性里面
+    -->
+    <!--<insert id="addUser" parameterType="user" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user(username,password,realname)
+        values(#{username},#{password},#{realname})
+    </insert>-->
+
+    <insert id="addUser" parameterType="user">
+        <!--keyProperty:查询到的主键存放到那个属性上
+            order：在 sql语句之前执行还是之后执行
+            resultType:返回值类型
+            mysql 的 order 只能使用 after
+            oracle 使用 before,
+            如果主键是 uuid
+            dual: 虚表
+        -->
+        <selectKey keyProperty="id" order="AFTER" resultType="int">
+            SELECT LAST_INSERT_ID() from dual
+        </selectKey>
+        insert into t_user(username,password,realname)
+        values(#{username},#{password},#{realname})
+    </insert>
+
+</mapper>
+
+
+
+
+
