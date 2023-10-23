@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+1、接口的名称和xml 文件的名称一致
+2、namespace命名空间是接口所在的位置
+3、标签中的id 和方法名称一样
+4、参数类型和方法中参数类型一致
+5、返回值类型和方法中返回值类型统一
+-->
+<mapper namespace="com.ychs.mapper.StudentMapper">
+    <select id="getCountByCid" parameterType="int" resultType="int">
+        <!--聚合函数(组函数，簇函数)有什么？ 5 count  avg  sum max min
+            count(*) 和 count(列名) 区别？
+            #{cid} 占位符
+            ${}:  拼接符    sql 字段名或列名 拼接的时候
+        -->
+        select count(*) from t_student where cid &lt;= #{cid}
+    </select>
+    <!--输入对象，输出的是列表-->
+    <select id="getStudents" parameterType="student" resultType="student">
+        select * from t_student where sname like concat('%',#{sname},'%')
+    </select>
+    <!--输入包装类型，输出的是列表
+        多表连接：内连接，外连接（左外连接，右外连接，完全外连接
+            连接条件
+        ）
+        map 遍历（）  list 遍历（）   set 遍历（）
+    -->
+    <!--<select id="getStusByNameAndCname" parameterType="student" resultType="student">-->
+    <!--resultMap:手动来实现 列名和 属性名的映射，一对一，一对多的关系经常使用
+        或者 查询到列名和属性名不一致的时候，可以自动封装映射关系
+    -->
+    <resultMap id="rm" type="student">
+        <id column="sno" property="sno"></id>
+        <result column="sname" property="sname"></result>
+        <result column="phone" property="phone"></result>
+        <result column="cid" property="cid"></result>
+        <result column="cname" property="name"></result>
+        <result column="cno" property="cno"></result>
+    </resultMap>
+    <select id="getStusByNameAndCname" parameterType="student" resultMap="rm">
+        select s.*,c.cname,c.cno from t_student s left join t_class c on s.cid=c.id
+        where s.sname like concat('%',#{sname},'%')
+        and c.cname like concat('%',#{clazz.cname},'%')
+    </select>
+    <!--根据学生的id 查询学生的信息，参数 hashMap  返回类型是hashmap-->
+    <select id="getStuBySno" parameterType="map" resultType="hashmap">
+        select * from t_student where sno=#{sno}
+    </select>
+</mapper>
+
+
+
+
