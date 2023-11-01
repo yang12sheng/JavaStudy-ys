@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ychs.mapper.MajorMapper">
+    <sql id="queryCondition">
+        <where>
+            <if test="deptId!=null and deptId!=''">
+                and deptId=#{deptId}
+            </if>
+        </where>
+    </sql>
+    <select id="getMajorsByCondition" parameterType="major" resultType="major">
+        select * from major
+        <include refid="queryCondition"></include>
+        order by id desc limit ${(page-1)*limit},#{limit}
+    </select>
+    <select id="getCountByCondition" parameterType="major" resultType="int">
+        select count(*) from major
+        <include refid="queryCondition"></include>
+    </select>
+    <insert id="addMajor" parameterType="major">
+        insert into major values(null,null,#{majorName},#{remark},#{deptId})
+    </insert>
+</mapper>
